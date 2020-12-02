@@ -3,7 +3,12 @@ const { NotFoundError, ForbiddenError, BadRequestError } = require('../middlewar
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => {
+      if (!cards.length) {
+        throw new NotFoundError('В базе нет карточек.');
+      }
+      res.send({ data: cards });
+    })
     .catch(next);
 };
 
@@ -12,10 +17,13 @@ module.exports.createCard = (req, res, next) => {
 
   Card.create({ name, link, owner })
     .then((cards) => {
-      if (cards.name === 'ValidationError') {
-        throw new BadRequestError.Send('Карточки нет в базе.');
-      }
       res.send({ data: cards });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        throw new BadRequestError('Переданы некорректные данные.');
+      }
+      next(err);
     })
     .catch(next);
 };

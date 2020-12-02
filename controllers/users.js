@@ -5,9 +5,16 @@ const {
   NotFoundError, ConflictError, UnauthorizedError, BadRequestError,
 } = require('../middlewares/error');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => {
+      if (!users.length) {
+        throw new NotFoundError('В базе нет пользователей.');
+      }
+      res.send({ data: users });
+    })
     .catch(next);
 };
 
@@ -15,12 +22,15 @@ module.exports.getSingleUser = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(new Error('NotFound'))
     .then((users) => {
-      if (users.name === 'CastError') {
+      res.send({ data: users });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
         throw new BadRequestError('Переданы некорректные данные.');
-      } else if (!req.params.id) {
+      } else if (err.message === 'NotFound') {
         throw new NotFoundError('Пользователя нет в базе.');
       }
-      res.send({ data: users });
+      next(err);
     })
     .catch(next);
 };
@@ -69,7 +79,7 @@ module.exports.login = (req, res, next) => {
         }
         const token = jwt.sign({
           _id: user._id,
-        }, 'secret-key', { expiresIn: 3600 * 24 * 7 });
+        }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key', { expiresIn: 3600 * 24 * 7 });
         return res.status(201).send({ message: `Токен: ${token}` });
       });
     })
