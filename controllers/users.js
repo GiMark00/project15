@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
-  NotFoundError, BadRequestError, ConflictError, UnauthorizedError,
+  NotFoundError, ConflictError, UnauthorizedError, BadRequestError,
 } = require('../middlewares/error');
 
 module.exports.getAllUsers = (req, res, next) => {
@@ -15,9 +15,9 @@ module.exports.getSingleUser = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(new Error('NotFound'))
     .then((users) => {
-      if (err.name === 'CastError') {
+      if (users.name === 'CastError') {
         throw new BadRequestError('Переданы некорректные данные.');
-      } else if (err.message === 'NotFound') {
+      } else if (!req.params.id) {
         throw new NotFoundError('Пользователя нет в базе.');
       }
       res.send({ data: users });
@@ -36,15 +36,13 @@ module.exports.createUser = (req, res, next) => {
   }
 
   bcrypt.hash(password, 10)
-    .then((hash) => {
-      User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      });
-    })
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message.includes('unique')) {
@@ -52,40 +50,12 @@ module.exports.createUser = (req, res, next) => {
       } else if (err.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные.');
       }
+      next(err);
     })
     .catch(next);
 };
 
-// module.exports.createUser = (req, res) => {
-//   const {
-//     name, about, avatar, email, password,
-//   } = req.body;
-//   const pattern = new RegExp(/^[A-Za-z0-9]{8,}$/);
-//   if (!pattern.test(password)) {
-//     return res.status(400).send({ message: 'Пароль должен состоять из заглавных и строчных букв, цифр, не содержать пробелов и быть как минимум 8 символов в длину.' });
-//   }
-
-//   bcrypt.hash(password, 10)
-//     .then((hash) => User.create({
-//       name,
-//       about,
-//       avatar,
-//       email,
-//       password: hash,
-//     }))
-//     .then((user) => res.send({ data: user }))
-//     .catch((err) => {
-//       if (err.message.includes('unique')) {
-//         res.status(409).send({ message: 'Введённая почта уже зарегистрирована' });
-//       } else if (err.name === 'ValidationError') {
-//         res.status(400).send({ message: 'Переданы некорректные данные' });
-//       } else {
-//         res.status(500).send({ message: 'Ошибка сервера' });
-//       }
-//     });
-// };
-
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('password')
     // eslint-disable-next-line consistent-return
@@ -103,7 +73,5 @@ module.exports.login = (req, res) => {
         return res.status(201).send({ message: `Токен: ${token}` });
       });
     })
-    .catch(() => {
-      throw new UnauthorizedError('Что-то пошло не так...');
-    });
+    .catch(next);
 };

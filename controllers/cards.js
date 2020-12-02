@@ -13,7 +13,7 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((cards) => {
       if (cards.name === 'ValidationError') {
-        throw new BadRequestError('Карточки нет в базе.');
+        throw new BadRequestError.Send('Карточки нет в базе.');
       }
       res.send({ data: cards });
     })
