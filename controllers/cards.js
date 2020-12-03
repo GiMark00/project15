@@ -13,9 +13,9 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.createCard = (req, res, next) => {
-  const { name, link, owner } = req.body;
+  const { name, link } = req.body;
 
-  Card.create({ name, link, owner })
+  Card.create({ name, link, owner: req.user._id })
     .then((cards) => {
       res.send({ data: cards });
     })
@@ -32,7 +32,6 @@ module.exports.deleteCard = (req, res, next) => {
   const currentUserId = req.user._id;
   Card.findById(req.params.id)
     .orFail(new Error('notValidId'))
-    .orFail()
     .then((card) => {
       const owner = card.owner._id.toString();
       if (!card._id) {

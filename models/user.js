@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
-const mongooseHidden = require('mongoose-hidden')();
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -36,6 +35,5 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.plugin(uniqueValidator);
-userSchema.plugin(mongooseHidden);
 
 module.exports = mongoose.model('user', userSchema);

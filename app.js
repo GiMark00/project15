@@ -33,7 +33,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().required(),
+    avatar: Joi.string().required().pattern(/https:\/\/\w+.\w+/),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
@@ -65,6 +65,7 @@ app.use((err, req, res, next) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+  next();
 });
 
 app.listen(PORT);

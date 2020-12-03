@@ -5,7 +5,7 @@ const {
   NotFoundError, ConflictError, UnauthorizedError, BadRequestError,
 } = require('../middlewares/error');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { NODE_ENV, JWT_SECRET = 'secret-key' } = process.env;
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
