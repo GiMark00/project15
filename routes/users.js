@@ -1,14 +1,14 @@
 const PostUsers = require('express').Router();
-const { celebrate } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const {
   getAllUsers, getSingleUser,
 } = require('../controllers/users');
 
 PostUsers.get('/users', getAllUsers);
 PostUsers.get('/users/:id', celebrate({
-  params: { id: /\w+/ },
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24).required(),
+  }),
 }), getSingleUser);
-
-// path: /users\/\w+/,
 
 module.exports = PostUsers;

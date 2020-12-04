@@ -5,7 +5,7 @@ const {
   NotFoundError, ConflictError, UnauthorizedError, BadRequestError,
 } = require('../middlewares/error');
 
-const { NODE_ENV, JWT_SECRET = 'secret-key' } = process.env;
+const { NODE_ENV, JWT_SECRET = 'super-secret-key' } = process.env;
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
@@ -79,7 +79,7 @@ module.exports.login = (req, res, next) => {
         }
         const token = jwt.sign({
           _id: user._id,
-        }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key', { expiresIn: 3600 * 24 * 7 });
+        }, NODE_ENV === 'production' ? JWT_SECRET : 'super-secret-key', { expiresIn: 3600 * 24 * 7 });
         return res.status(201).send({ message: `Токен: ${token}` });
       });
     })
