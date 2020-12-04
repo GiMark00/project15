@@ -53,7 +53,12 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(201).send({
+      data: {
+        id: user.id, name: user.name, about: user.about, avatar: user.avatar, email: user.email,
+      },
+    }))
+
     .catch((err) => {
       if (err.message.includes('unique')) {
         throw new ConflictError('Введённая почта уже зарегистрирована.');
