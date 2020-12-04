@@ -1,4 +1,4 @@
-# project14
+# project15
 15 проект из Яндекс.Практикума
 
 Адрес фронтенда: https://gimark.students.nomoreparties.space/dist/index.html
