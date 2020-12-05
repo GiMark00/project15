@@ -11,3 +11,5 @@ https://api.gimark.students.nomoreparties.space
 gimark.students.nomoreparties.space и www.gimark.students.nomoreparties.space для фронтенда
 
 api.gimark.students.nomoreparties.space и www.api.gimark.students.nomoreparties.space для бекенда
+
+Публичный IP сервера: 178.154.224.50
